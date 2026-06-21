@@ -110,7 +110,7 @@
 </div>
 
 <script>
-        const db = {
+    const db = {
         "หวย จันทร์-ศุกร์": [
             {n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"นิเคอิเช้า", f:"jp"}, 
             {n:"จีนเช้า VIP", f:"cn"}, {n:"จีนเช้า", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, 
@@ -135,24 +135,19 @@
             {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวสามัคคี", f:"la"}, 
             {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, 
             {n:"ฮานอย Extra", f:"vn"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, 
-            {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}],
-            
+            {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}
+        ],
         "หวยรัฐบาล": [{n:"รัฐบาลไทย", f:"th"}, {n:"ธ.ก.ส", f:"th"}, {n:"ออมสิน", f:"th"}]
     };
 
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date(), currentScale = 100;
-
     const storageKeyName = 'mongkolsap_pae_lotto_data';
 
     function changeFontSize(scalePercent) {
         currentScale = parseInt(scalePercent);
         document.querySelectorAll('.number-box').forEach(box => {
             const baseSize = parseFloat(box.getAttribute('data-base-size'));
-            if (box.id === 'four-digits') {
-                if (baseSize) box.style.fontSize = `${(baseSize * currentScale) / 100}px`;
-            } else {
-                if (baseSize) box.style.fontSize = `${(baseSize * currentScale) / 100}px`;
-            }
+            if (baseSize) box.style.fontSize = `${(baseSize * currentScale) / 100}px`;
         });
         document.querySelectorAll('.number-box-sub').forEach(box => {
             const baseSize = parseFloat(box.getAttribute('data-base-size'));
@@ -232,12 +227,19 @@
         document.getElementById('title').textContent = db[f][i].n; 
         showPage('page-main'); 
         genNumbers(); 
-        adjustDate(0); // เรียกแสดงผลและอัปเดตวันที่ทันทีหลังจากเปลี่ยนประเภทหวย
+        adjustDate(0); 
     }
     
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     function moveLotto(d) { curI += d; if(curI < 0) curI = 0; if(curI >= db[curF].length) curI = db[curF].length - 1; loadLotto(curF, curI); }
-    function adjustDate(d) { curDate.setDate(curDate.getDate() + d); const s = curDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); document.getElementById('date-label').textContent = s; document.getElementById('date-display').textContent = s; save(); }
+    
+    function adjustDate(d) { 
+        curDate.setDate(curDate.getDate() + d); 
+        const s = curDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); 
+        document.getElementById('date-label').textContent = s; 
+        document.getElementById('date-display').textContent = s; 
+        save(); 
+    }
     
     function genNumbers() { 
         let w1=Math.floor(Math.random()*10), w2, den; 
@@ -265,13 +267,13 @@
         document.querySelectorAll('.number-box, .drag-group').forEach(b => {
             s[b.id] = {x:b.getAttribute('data-x')||0, y:b.getAttribute('data-y')||0, txt:b.textContent};
         }); 
-        localStorage.setItem(storageKeyName, JSON.stringify({s, curF, curI, date:curDate, scale:currentScale})); 
+        localStorage.setItem(storageKeyName, JSON.stringify({s, curF, curI, scale:currentScale})); 
     }
     
     function load() { 
         const d = JSON.parse(localStorage.getItem(storageKeyName)); 
         if(d) { 
-            curF = d.curF; curI = d.curI; curDate = new Date(d.date); currentScale = d.scale || 100; 
+            curF = d.curF; curI = d.curI; currentScale = d.scale || 100; 
             document.getElementById('fontSizeSlider').value = currentScale; 
             changeFontSize(currentScale); 
             Object.keys(d.s).forEach(id => { 
@@ -282,7 +284,6 @@
                     el.setAttribute('data-x', d.s[id].x); el.setAttribute('data-y', d.s[id].y); 
                 } 
             }); 
-            adjustDate(0); 
         } 
     }
     
@@ -300,11 +301,9 @@
     Object.keys(db).forEach(f => { let b=document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l=document.createElement('div'); l.className='lottery-list'; b.onclick = () => { const elements = document.querySelectorAll('.lottery-list'); elements.forEach(i => { if(i !== l) i.classList.remove('active'); }); l.classList.toggle('active'); }; db[f].forEach((item,i) => { let s=document.createElement('button'); s.className='btn-lotto'; let img = document.createElement('img'); img.src = `https://flagcdn.com/w20/${item.f}.png`; img.style.borderRadius="2px"; s.appendChild(img); s.append(item.n); s.onclick=(e)=>{e.stopPropagation(); loadLotto(f,i)}; l.appendChild(s); }); document.getElementById('menu').appendChild(b); document.getElementById('menu').appendChild(l); });
     
     window.onload = () => { 
-        load(); 
-        if(!localStorage.getItem(storageKeyName)){
-            curDate = new Date(); 
-            adjustDate(0); 
-        }
+        load(); // โหลดข้อมูลตำแหน่งและขนาดอักษร
+        curDate = new Date(); // ดึงวันที่ปัจจุบันของเครื่องเสมอเมื่อเปิดเว็บ
+        adjustDate(0); // อัปเดตและแสดงผลวันที่ปัจจุบันทันที
     };
 </script>
 </body>
